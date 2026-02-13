@@ -41,3 +41,10 @@ Bank-Data-Pipeline/
 ├── data/                   # Data Lake local (Raw y Processed)
 ├── docker-compose.yml      # Configuración de servicios (Airflow, Spark, Postgres)
 └── README.md               # Documentación del proyecto
+
+---
+
+## 📝 Notas de despliegue y compatibilidad
+
+- A partir de la versión actual, el archivo `docker-compose.yml` utiliza la imagen oficial `apache/spark:3.5.0` para el servicio Spark, ya que la imagen `bitnami/spark` ha dejado de estar disponible o no cuenta con la etiqueta `latest` ni versiones recientes.
+- El atributo `version` en `docker-compose.yml` es obsoleto y puede ser removido en futuras versiones de Docker Compose. Actualmente, se ignora pero puede generar advertencias.
