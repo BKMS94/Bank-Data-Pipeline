@@ -13,9 +13,7 @@ services:
       - PYTHONPATH=/opt/airflow
       - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     command: >
-      bash -c "apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre-headless wget &&
-      mkdir -p /opt/airflow/drivers &&
-      wget https://jdbc.postgresql.org/download/postgresql-42.7.1.jar -P /opt/airflow/drivers/ &&
+      bash -c "apt-get update && apt-get install -y --no-install-recommends openjdk-17-jre-headless &&
       gosu airflow pip install pyspark==3.5.0 && 
       gosu airflow airflow standalone"
     volumes:

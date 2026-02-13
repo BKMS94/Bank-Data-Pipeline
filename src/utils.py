@@ -1,32 +1,19 @@
-import pyspark.sql.functions as F
+import logging
+from pyspark.sql import SparkSession
 
-def clean_data(df):
-    """Estandarización y Calidad de Datos"""
-    # Limpiar nombres de columnas 
-    for col in df.columns:
-        clean_name = col.lower().replace(" ", "_").replace("(", "").replace(")", "")
-        df = df.withColumnRenamed(col, clean_name)
-    
-    # Filtro de negocio: Solo montos positivos
-    df = df.filter(F.col("transactionamount_inr") > 0)
-    
-    # Manejo de nulos básicos
-    df = df.fillna({"custlocation": "UNKNOWN", "custgender": "U"})
-    
-    return df
+def get_spark_session(app_name="GNB_Banca_Pipeline", jar_path=None):
+    """Configura Spark para conectar con Postgres."""
+    builder = SparkSession.builder.appName(app_name)
+    if jar_path:
+        builder = builder.config("spark.jars", jar_path) \
+                         .config("spark.driver.extraClassPath", jar_path)
+    return builder.getOrCreate()
 
-def clean_column_names(df):
-    """Estandariza los nombres de las columnas a minúsculas y sin espacios."""
-    for col in df.columns:
-        df = df.withColumnRenamed(col, col.lower().replace(" ", "_").replace("(", "").replace(")", ""))
-    return df
+def setup_logging():
+    """Configura logs para trazabilidad (Audit Trail)."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    return logging.getLogger("ETL_Logger")
 
-def validate_financial_data(df):
-    """Aplica reglas de Data Quality para el sector bancario."""
-    # 1. Eliminar transacciones con montos negativos o cero
-    df = df.filter(F.col("transactionamount_inr") > 0)
-    
-    # 2. Manejo de nulos en ubicación
-    df = df.fillna({"custlocation": "NOT_SPECIFIED", "custgender": "U"})
-    
-    return df
+def check_data_quality(df, column_name):
+    """Perfilamiento rápido para detectar nulos."""
+    return df.filter(df[column_name].isNull()).count()
