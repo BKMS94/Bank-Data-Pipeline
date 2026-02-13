@@ -1,50 +1,25 @@
-# 🏦 Bank Data Pipeline: Scalable ETL with PySpark & Airflow
+# 🏦 Bank Transactions ETL Pipeline (PySpark + Airflow)
 
-## 📌 Descripción del Proyecto
-Este proyecto es una solución **End-to-End (E2E)** de Ingeniería de Datos diseñada para procesar y analizar más de **1 millón de transacciones bancarias**. El objetivo es transformar datos financieros crudos en activos estratégicos, garantizando la **idempotencia**, la integridad de la información y el cumplimiento de estándares de calidad exigidos en el sector bancario.
+Este proyecto implementa un pipeline de datos robusto para la ingesta, transformación y disponibilidad de transacciones financieras. Está diseñado bajo principios de **idempotencia**, **resiliencia** y **calidad de datos**, simulando un entorno de banca comercial regulado.
 
-Se implementó una arquitectura distribuida que separa la orquestación del procesamiento masivo, simulando un entorno de producción real utilizando contenedores.
 
----
+
+## 🏗️ Arquitectura del Proyecto
+El proyecto utiliza una estructura modular para separar la orquestación de la lógica de negocio, facilitando el mantenimiento y la escalabilidad:
+
+* **`dags/`**: Contiene el orquestador `bank_pipeline_dag.py` que gestiona la ejecución y reintentos del flujo.
+* **`src/`**: Núcleo técnico del proyecto con `etl_process.py` para la lógica ETL y `utils.py` para configuraciones transversales.
+* **`data/`**: Zona de aterrizaje (Landing Zone) para los archivos fuente `bank_transactions.csv`.
+* **`drivers/`**: Almacena el conector JDBC necesario para la persistencia en base de datos.
 
 ## 🛠️ Stack Tecnológico
-* **Orquestación:** **Apache Airflow** (Gestión y monitoreo de flujos de trabajo).
-* **Procesamiento Big Data:** **Apache Spark (PySpark)** (Motor de procesamiento distribuido para grandes volúmenes).
-* **Contenerización:** **Docker & Docker Compose** (Aislamiento de servicios y entorno replicable).
-* **Almacenamiento:** **Parquet (Snappy compression)** (Optimización de almacenamiento y velocidad de consulta).
-* **Lenguaje y Librerías:** **Python** (Pandas, NumPy, PySpark SQL).
-* **Base de Datos de Metadatos:** **PostgreSQL** (Persistencia del historial de ejecución de Airflow).
+* **Orquestación**: Apache Airflow 2.7.1.
+* **Procesamiento**: PySpark 3.5.0 (Computación distribuida).
+* **Contenerización**: Docker & Docker Compose.
+* **Base de Datos**: PostgreSQL 13 (Data Mart analítico).
+* **Lenguaje**: Python 3.9.
 
----
-
-## 🚀 Arquitectura del Pipeline
-El flujo de datos se divide en cuatro etapas críticas gestionadas por un DAG (Directed Acyclic Graph) en Airflow:
-
-1. **Ingesta Automatizada:** Carga masiva de archivos CSV desde el Data Lake local hacia el entorno distribuido.
-2. **Validación & Data Quality:**
-    * Filtrado de anomalías como montos negativos o transacciones incoherentes.
-    * Manejo de valores nulos y estandarización de esquemas técnicos.
-3. **Procesamiento Distribuido:**
-    * Cálculo de balances promedio por ubicación geográfica mediante Spark SQL.
-    * Segmentación de clientes basada en comportamiento transaccional masivo.
-4. **Carga Optimizada:** Exportación de resultados a archivos Parquet particionados, mejorando el rendimiento de futuras consultas analíticas.
-
----
-
-## 📂 Estructura del Repositorio
-
-Bank-Data-Pipeline/
-├── dags/                   # Definición de flujos y tareas en Airflow
-├── src/                    # Scripts de procesamiento PySpark y utilitarios
-│   ├── etl_process.py      # Lógica principal de transformación
-│   └── utils.py            # Funciones de validación de calidad y limpieza
-├── data/                   # Data Lake local (Raw y Processed)
-├── docker-compose.yml      # Configuración de servicios (Airflow, Spark, Postgres)
-└── README.md               # Documentación del proyecto
-
----
-
-## 📝 Notas de despliegue y compatibilidad
-
-- A partir de la versión actual, el archivo `docker-compose.yml` utiliza la imagen oficial `apache/spark:3.5.0` para el servicio Spark, ya que la imagen `bitnami/spark` ha dejado de estar disponible o no cuenta con la etiqueta `latest` ni versiones recientes.
-- El atributo `version` en `docker-compose.yml` es obsoleto y puede ser removido en futuras versiones de Docker Compose. Actualmente, se ignora pero puede generar advertencias.
+## 🚀 Características Principales (Valor Técnico)
+1.  **Idempotencia**: Implementación de carga en modo `overwrite` y eliminación de duplicados mediante `TransactionId` para garantizar que ejecuciones repetidas no corrompan el destino.
+2.  **Calidad de Datos (Data Quality)**: Filtros de validación para montos negativos y tratamiento de valores nulos antes de la persistencia.
+3.  **Trazabilidad y Linaje**: Inserción de metadatos de auditoría
