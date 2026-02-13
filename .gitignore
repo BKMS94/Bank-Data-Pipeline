@@ -1,0 +1,8 @@
+# Ignorar datos y archivos pesados
+data/
+*.csv
+*.parquet
+*.ipynb_checkpoints/
+__pycache__/
+.env
+.DS_Store
